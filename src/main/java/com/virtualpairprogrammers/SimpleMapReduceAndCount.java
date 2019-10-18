@@ -14,17 +14,16 @@ public class SimpleMapReduceAndCount {
 
   public static void main(String[] args) {
 
-    List<Integer> doubles = new ArrayList<>();
-    doubles.add(11);
-    doubles.add(9);
-    doubles.add(4);
-    doubles.add(13);
-
     logger.setLevel(Level.WARN);
 
     SparkConf sparkConf = new SparkConf().setAppName("startingSpark").setMaster("local[*]");
     try (JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf)) {
-      JavaRDD<Integer> integerRdd = javaSparkContext.parallelize(doubles);
+      List<Integer> integers = new ArrayList<>();
+      integers.add(12);
+      integers.add(9);
+      integers.add(16);
+      integers.add(13);
+      JavaRDD<Integer> integerRdd = javaSparkContext.parallelize(integers);
       // Finding Sum of Integers
       logger.warn("Sum : " + integerRdd.reduce(Integer::sum));
 

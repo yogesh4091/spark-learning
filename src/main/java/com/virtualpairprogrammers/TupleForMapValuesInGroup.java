@@ -13,17 +13,16 @@ public class TupleForMapValuesInGroup {
   private static Logger logger = Logger.getLogger("org.apache");
 
   public static void main(String[] args) {
-    List<Integer> doubles = new ArrayList<>();
-    doubles.add(11);
-    doubles.add(9);
-    doubles.add(4);
-    doubles.add(13);
-
     logger.setLevel(Level.WARN);
 
     SparkConf sparkConf = new SparkConf().setAppName("startingSpark").setMaster("local[*]");
     try (JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf)) {
-      JavaRDD<Integer> integerRdd = javaSparkContext.parallelize(doubles);
+      List<Integer> integers = new ArrayList<>();
+      integers.add(11);
+      integers.add(9);
+      integers.add(4);
+      integers.add(13);
+      JavaRDD<Integer> integerRdd = javaSparkContext.parallelize(integers);
 
       // Finding Square route of RDD of Integers and keeping key value in Tuple2.
       JavaRDD<Tuple2<Integer, Double>> squareRootTupleRdd =
