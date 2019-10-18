@@ -1,0 +1,13 @@
+# Default ignored files
+/workspace.xml
+/$CACHE_FILE$
+/$PRODUCT_WORKSPACE_FILE$
+/checkstyle-idea.xml
+/misc.xml
+/sbt.xml
+/codeStyles/codeStyleConfig.xml
+/google-java-format.xml
+/modules.xml
+/codeStyles/Project.xml
+/spark-learning.iml
+/vcs.xml
