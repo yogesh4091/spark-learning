@@ -50,7 +50,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.virtualpairprogrammers.SimpleMapAndReduce</mainClass>
+                            <mainClass>com.virtualpairprogrammers.SimpleMapReduceAndCount</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
