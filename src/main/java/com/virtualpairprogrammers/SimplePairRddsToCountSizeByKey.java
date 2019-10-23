@@ -2,6 +2,7 @@ package com.virtualpairprogrammers;
 
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -38,11 +39,17 @@ public class SimplePairRddsToCountSizeByKey {
       // GroupBy key DON'T USE THIS METHOD UNLESS ABSOLUTELY NECESSARY.
       javaSparkContext
           .parallelize(logMessages)
-          .mapToPair(
-              message -> new Tuple2<String, String>(message.split(":")[0], message.split(":")[1]))
+          .mapToPair(message -> new Tuple2<>(message.split(":")[0], message.split(":")[1]))
           .groupByKey()
           .collect()
           .forEach(tuple -> logger.warn(tuple._1 + "," + Iterables.size(tuple._2)));
+
+      javaSparkContext
+          .parallelize(logMessages)
+          .flatMap(value -> Arrays.asList(value.split(" ")).iterator())
+          .filter(value -> value.length() > 1)
+          .collect()
+          .forEach(logger::warn);
     }
   }
 }
