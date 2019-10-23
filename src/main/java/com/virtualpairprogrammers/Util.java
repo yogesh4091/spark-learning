@@ -24,7 +24,8 @@ public class Util {
   static {
     // On the video, I say "change this class name" - ignore that.
     // The class name should have been Util, as it is here!
-    InputStream is = SimpleMapReduceAndCount.class.getResourceAsStream("/subtitles/boringwords.txt");
+    InputStream is =
+        SimpleMapReduceAndCount.class.getResourceAsStream("/subtitles/boringwords.txt");
     BufferedReader br = new BufferedReader(new InputStreamReader(is));
     br.lines().forEach(borings::add);
   }
