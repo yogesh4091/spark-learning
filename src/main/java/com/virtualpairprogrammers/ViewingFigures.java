@@ -2,13 +2,11 @@ package com.virtualpairprogrammers;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-
 import scala.Tuple2;
 
 /**
@@ -25,13 +23,56 @@ public class ViewingFigures {
     JavaSparkContext sc = new JavaSparkContext(conf);
 
     // Use true to use hardcoded data identical to that in the PDF guide.
-    boolean testMode = true;
+    boolean testMode = false;
 
     JavaPairRDD<Integer, Integer> viewData = setUpViewDataRdd(sc, testMode);
     JavaPairRDD<Integer, Integer> chapterData = setUpChapterDataRdd(sc, testMode);
     JavaPairRDD<Integer, String> titlesData = setUpTitlesDataRdd(sc, testMode);
 
-    // TODO - over to you!
+    JavaPairRDD<Integer, Integer> chaptersInCourseData =
+        chapterData.mapToPair(row -> new Tuple2<>(row._2, 1)).reduceByKey(Integer::sum);
+
+    JavaPairRDD<Integer, Integer> distinctUserViewData = viewData.distinct();
+
+    JavaPairRDD<Integer, Tuple2<Integer, Integer>> chapterWiseUserAndCourseData =
+        distinctUserViewData.mapToPair(row -> new Tuple2<>(row._2, row._1)).join(chapterData);
+
+    JavaPairRDD<Tuple2<Integer, Integer>, Long> userCourseWiseCount =
+        chapterWiseUserAndCourseData.mapToPair(
+            row -> new Tuple2<>(new Tuple2<>(row._2._1, row._2._2), 1L));
+
+    JavaPairRDD<Tuple2<Integer, Integer>, Long> courseWiseDistinctCount =
+        userCourseWiseCount.reduceByKey(Long::sum);
+
+    JavaPairRDD<Integer, Long> courseAndCountPair =
+        courseWiseDistinctCount.mapToPair(row -> new Tuple2<>(row._1._2, row._2));
+
+    JavaPairRDD<Integer, Tuple2<Long, Integer>> courseWiseRatioData =
+        courseAndCountPair.join(chaptersInCourseData);
+
+    JavaPairRDD<Integer, Double> integerLongJavaPairRDD =
+        courseWiseRatioData.mapValues(value -> (double) value._1 / value._2);
+
+    JavaPairRDD<Integer, Integer> courseWiseScore =
+        integerLongJavaPairRDD
+            .mapValues(
+                value -> {
+                  if (value > 0.9) return 10;
+                  if (value > 0.5) return 4;
+                  if (value > 0.25) return 2;
+                  return 0;
+                })
+            .reduceByKey(Integer::sum);
+
+    JavaPairRDD<Integer, Tuple2<String, Integer>> courseWiseCountWithTitle =
+        titlesData.join(courseWiseScore);
+
+    JavaPairRDD<Integer, String> scoreWiseTitles =
+        courseWiseCountWithTitle
+            .mapToPair(row -> new Tuple2<>(row._2._2, row._2._1))
+            .sortByKey(false);
+
+    scoreWiseTitles.collect().forEach(row -> System.out.println(row._2 + " : " + row._1));
 
     sc.close();
   }
